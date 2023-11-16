@@ -1,95 +1,71 @@
+'use client'
 import Image from 'next/image'
 import styles from './page.module.css'
+import mainImage from '@/assets/images/main_image.png'
+import { Button, Form, Spinner } from 'react-bootstrap'
+import { FormEvent, useState } from 'react'
 
 export default function Home() {
+
+  const [quote, setQuote] = useState("")
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [quoteLoadingError, setQuoteLoadingError] = useState(false)
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.target as HTMLFormElement)
+    const prompt = formData.get("prompt")?.toString().trim()
+
+    if (prompt) {
+      try {
+        setQuote('')
+        setQuoteLoadingError(false)
+        setQuoteLoading(true)
+
+        const response = await fetch('/api/motto?prompt=' + encodeURIComponent(prompt))
+        const body = await response.json()
+        setQuote(body.quote)
+
+      } catch (error) {
+        console.error(error)
+        setQuoteLoadingError(true)
+      } finally {
+        setQuoteLoading(false);
+      }
+    }
+
+  }
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
+      <h1>Motto AI</h1>
+      <h2>powered by GPT-3.5</h2>
+      <div>Enter a topic and the AI will generate a super motivational quote.</div>
+      <div className={styles.mainImageContainer}>
         <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
+          src={mainImage}
+          fill
+          alt='Motto AI'
           priority
+          className={styles.mainImage}
         />
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <Form onSubmit={handleSubmit} className={styles.inputForm}>
+        <Form.Group className='mb-3' controlId='prompt-input'>
+          <Form.Label>Create a motto quote about...</Form.Label>
+          <Form.Control
+            name='prompt'
+            placeholder='e.g. success, fear, potatoes'
+            maxLength={100}
+          />
+        </Form.Group>
+        <Button type='submit' className='mb-3' disabled={quoteLoading}>
+          Make me motto
+        </Button>
+      </Form>
+      {quoteLoading && <Spinner animation='border'></Spinner>}
+      {quoteLoadingError && <div>Something went wrong. Please try again.</div>}
+      {quote && <h5 className={styles.quote}>{quote}</h5>}
     </main>
   )
 }
