@@ -1,13 +1,13 @@
 import { type NextRequest } from 'next/server'
 import { OpenAI } from 'openai'
 
-const apiKey = process.env.OPENAI_API_KEY
+const apiKey = process.env.DEEPSEEK_API_KEY
 const openai = new OpenAI({
   apiKey,
-  baseURL: 'https://api.openai-proxy.com/v1',
+  baseURL: 'https://api.deepseek.com',
 })
 if (!apiKey) {
-  throw Error("OPENAI_API_KEY is not set");
+  throw Error("DEEPSEEK_API_KEY is not set");
 }
 
 export async function GET(
@@ -27,7 +27,7 @@ export async function GET(
 
 
   const completion = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-chat',
     messages: [
       {
         role: 'system',

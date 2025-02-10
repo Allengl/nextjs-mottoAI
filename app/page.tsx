@@ -39,7 +39,7 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <h1>Motto AI</h1>
-      <h2>powered by GPT-3.5</h2>
+      <h2>powered by DeepSeek-R1</h2>
       <div>Enter a topic and the AI will generate a super motivational quote.</div>
       <div className={styles.mainImageContainer}>
         <Image
